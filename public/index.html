@@ -17,12 +17,6 @@
       // To get started with this tutorial running your own code, simply remove
       // the script tag loading scripts/example.js and start writing code here.
 
-      // temporary data model
-      var data = [
-        {id: 1, author: "Pete Hunt", text: "This is one comment"},
-        {id: 2, author: "Jordan Walke", text: "This is *another* comment"}
-      ];
-
       var CommentList = React.createClass({
         render: function() {
 
@@ -66,19 +60,43 @@
       })
 
       var CommentBox = React.createClass({
+        // getInitialState is a React method that runs *once* and sets initial state
+        getInitialState: function() {
+          return {data: []};
+        },
+        // make an AJAX call to get information from server asynchronously
+        // componentDidMount is a React method automatically called after component
+        // has rendered for the first time
+        componentDidMount: function() {
+          $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+              this.setState({data: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+              console.error(this.props.url, status, err.toString());
+            }.bind(this)
+          });
+        },
+
         render: function() {
           return (
             <div className="commentBox">
               <h1>Comments</h1>
-              <CommentList data={this.props.data} />
+              <CommentList data={this.state.data} />
               <CommentForm />
             </div>
           );
         }
       });
 
+    // hit server URL to get data from server
+    // component won't have any data until server response comes back
+    // at which point the component will have to re-render itself
     ReactDOM.render(
-      <CommentBox data={data} />,
+      <CommentBox url="/api/comments" />,
       document.getElementById('content')
     );
 
