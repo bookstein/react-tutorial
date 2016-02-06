@@ -60,14 +60,7 @@
       })
 
       var CommentBox = React.createClass({
-        // getInitialState is a React method that runs *once* and sets initial state
-        getInitialState: function() {
-          return {data: []};
-        },
-        // make an AJAX call to get information from server asynchronously
-        // componentDidMount is a React method automatically called after component
-        // has rendered for the first time
-        componentDidMount: function() {
+        loadCommentsFromServer: function() {
           $.ajax({
             url: this.props.url,
             dataType: 'json',
@@ -79,6 +72,19 @@
               console.error(this.props.url, status, err.toString());
             }.bind(this)
           });
+        },
+
+        // getInitialState is a React method that runs *once* and sets initial state
+        getInitialState: function() {
+          return {data: []};
+        },
+        // make an AJAX call to get information from server asynchronously
+        // componentDidMount is a React method automatically
+        // called after component has rendered for the first time
+        componentDidMount: function() {
+          // set up intermittent polling for changes (every 2 sec)
+          this.loadCommentsFromServer();
+          setInterval(this.loadCommentsFromServer, 2000);
         },
 
         render: function() {
